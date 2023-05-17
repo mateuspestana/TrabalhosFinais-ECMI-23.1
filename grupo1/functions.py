@@ -3,6 +3,8 @@ import pandas as pd
 from stqdm import stqdm
 from bs4 import BeautifulSoup
 import streamlit as st
+from unidecode import unidecode
+import altair as alt
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
@@ -29,7 +31,8 @@ def raspaML(query):
         preco = produto.select_one('.price-tag-amount').get_text(strip=True)
         preco_clean = float(preco.replace('R$', '').replace('.', '').replace(',', '.'))
         link = produto.select_one('a')['href']
-        dados = {'título': titulo, 'imagem': imagem, 'preço': preco, 'preço_clean': preco_clean,'link': link}
+        origem = 'Mercado Livre'
+        dados = {'título': titulo, 'imagem': imagem, 'preço': preco, 'preço_clean': preco_clean,'link': link, 'origem': origem}
         lista_produtos.append(dados)
     return lista_produtos
 
@@ -48,7 +51,8 @@ def raspaAmazon(query):
             preco_clean = float(preco.replace('.', '').replace(',', '.').replace('R$', ''))
             link = produto.select_one('a')['href']
             link = 'https://www.amazon.com.br' + link
-            dados = {'título': titulo, 'imagem': imagem, 'preço': preco, 'preço_clean': preco_clean,'link': link}
+            origem = 'Amazon'
+            dados = {'título': titulo, 'imagem': imagem, 'preço': preco, 'preço_clean': preco_clean,'link': link, 'origem': origem}
             lista_produtos.append(dados)
     return lista_produtos
 
@@ -62,10 +66,14 @@ def raspaBeautyBox(query):
   for item in produtos:
     titulo = item.find('a', {'class':'showcase-item-title'}).get('title')
     link = item.find('a', {'class':'showcase-item-title'}).get('href')
-    preco = item.find('span', {'class':'price-value'}).get_text()
-    preco_clean = float(preco.replace(',', '.').replace('R$', '').strip())
+    if item.find('p', {'class':'item-price-unavailable'}):
+      pass
+    else:
+      preco = item.find('div', {'class':'item-price-value'}).get_text()
+      preco_clean = float(preco.replace('.', '').replace(',', '.').replace('R$', ''))
     imagem = item.find('img').get('data-src')
-    dados = {'título': titulo, 'imagem': imagem, 'preço': preco, 'preço_clean': preco_clean, 'link': link}
+    origem = 'BeautyBox'
+    dados = {'título': titulo, 'imagem': imagem, 'preço': preco, 'preço_clean': preco_clean, 'link': link, 'origem': origem}
     lista_produtos.append(dados)
   return lista_produtos
 
@@ -79,14 +87,19 @@ def raspaBelezaNaWeb(query):
   for item in produtos:
     titulo = item.find('a', {'class':'showcase-item-title'}).get('title')
     link = item.find('a', {'class':'showcase-item-title'}).get('href')
-    preco = item.find('span', {'class':'price-value'}).get_text()
-    preco_clean = float(preco.replace(',', '.').replace('R$', '').strip())
+    if item.find('p', {'class': 'item-price-unavailable'}):
+        pass
+    else:
+        preco = item.find('div', {'class': 'item-price-value'}).get_text()
+        preco_clean = float(preco.replace('.', '').replace(',', '.').replace('R$', ''))
     imagem = item.find('img').get('data-src')
-    dados = {'título': titulo, 'imagem': imagem, 'preço': preco, 'preço_clean': preco_clean, 'link': link}
+    origem = 'Beleza na Web'
+    dados = {'título': titulo, 'imagem': imagem, 'preço': preco, 'preço_clean': preco_clean, 'link': link, 'origem': origem}
     lista_produtos.append(dados)
   return lista_produtos
 
 def buscadorGeral(query):
+    query = unidecode(query)
     while True:
         result_amazon = raspaAmazon(query)
         if len(result_amazon) == 0:
@@ -101,8 +114,9 @@ def buscadorGeral(query):
     df = pd.DataFrame(result_bnw + result_bb + result_ml + result_amazon)
     df.dropna(subset=['preço_clean'], inplace=True)
     df = df.sort_values(by=['preço_clean'])
+    df['título'] = df['título'].apply(lambda x: unidecode(x))
     df = df[df['título'].apply(lambda x: checaLista(query, x))]
-    return df[['título', 'imagem', 'preço', 'link']]
+    return df[['título', 'imagem', 'preço', 'link', 'preço_clean', 'origem']]
 
 def checaLista(query, row):
     query = query.lower().split()
@@ -111,12 +125,23 @@ def checaLista(query, row):
         return True
     else:
         return False
+
 def showProducts(df_produtos):
     for index, produto in df_produtos.iterrows():
         with st.expander(produto['título'], expanded=True):
-            st.image(produto['imagem'], width=200)
+            if produto['origem'] != 'Mercado Livre':
+                st.image(produto['imagem'], width=200)
             if index == 0:
                 st.subheader(f"Preço: {produto['preço']} - OPÇÃO MAIS BARATA")
             else:
                 st.markdown(f"**Preço:** {produto['preço']}")
             st.write(produto['link'])
+
+def histoPreco(df):
+    graph = alt.Chart(df).encode(alt.X('preço_clean:Q', bin=True, title='Faixa de Preço'), y=alt.Y('count()', title='Nº de produtos'), text='count()')
+    return graph.mark_bar() + graph.mark_text(dy=-6)
+
+def mediaPreco(df):
+    media = df.groupby('origem')['preço_clean'].mean().reset_index(name='media_preco')
+    graph = alt.Chart(media).encode(alt.Y('origem:N', title='Site'), alt.X('media_preco', title='Média do Preço'), text=alt.Text('media_preco', format='.2f'))
+    return graph.mark_bar() + graph.mark_text(dx=18)
