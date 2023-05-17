@@ -12,9 +12,9 @@ def main():
     with st.sidebar:
         st.title('Título sidebar')
         with st.form(key='form_busca'):
-            tipo = st.selectbox('Selecione o tipo', ['Base', 'Batom', 'Sombra'])
+            # tipo = st.selectbox('Selecione o tipo', ['Base', 'Batom', 'Sombra'])
             query = st.text_input('Digite o produto')
-            query = tipo + ' ' + query
+            # query = tipo + ' ' + query
             buscar = st.form_submit_button('Buscar')
         st.caption('Desenvolvido por:')
         st.caption("- Anna Beatriz Veronez \n- Anna Clara Legey \n- Ana Paula Salvador \n- Nataly de Abreu")
