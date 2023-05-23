@@ -10,7 +10,7 @@ st.set_page_config(page_title="Buscador de Preço", page_icon="📐", layout="wi
 def main():
 
     with st.sidebar:
-        st.title('Título sidebar')
+        st.title('NatannaTech')
         with st.form(key='form_busca'):
             # tipo = st.selectbox('Selecione o tipo', ['Base', 'Batom', 'Sombra'])
             query = st.text_input('Digite o produto')
