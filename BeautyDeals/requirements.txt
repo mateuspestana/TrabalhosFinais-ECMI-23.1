@@ -1,0 +1,47 @@
+#biblioteca para criação de gráficos interativos
+altair==4.2.2
+
+#biblioteca para análise de HTML e XML
+beautifulsoup4==4.12.2
+
+#biblioteca para processamento de HTML e XML
+lxml==4.9.2
+
+#biblioteca para computação métrica, como funções
+numpy==1.24.3
+
+#biblioteca para manipulação de Excel
+openpyxl==3.1.2
+
+#biblioteca para pacotes em Python 
+packaging==23.1
+
+#biblioteca para análise e manipulação de dados
+pandas==2.0.1
+
+#gerencia pacote do Python
+pip==23.1.2
+
+#biblioteca para serialização de dados estruturados
+protobuf==3.20.3
+
+#biblioteca para processamento de dados em colunas
+pyarrow==11.0.0
+
+#biblioteca para fazer requisição HTTP
+requests==2.30.0
+
+#biblioteca para exibição de barras de progresso no Streamlit
+stqdm==0.0.5
+
+#biblioteca para criação de sites interativos
+streamlit==1.22.0
+
+#biblioteca para exibição de barras de progresso em loops
+tqdm==4.65.0
+
+#biblioteca para monitorar mudanças em arquivos e diretórios
+watchdog==3.0.0
+
+#biblioteca para remover acentos e caracteres especiais de strings
+unidecode

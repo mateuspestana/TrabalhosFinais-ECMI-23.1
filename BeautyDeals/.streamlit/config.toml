@@ -1,0 +1,15 @@
+[theme]
+#define a cor primária
+primaryColor="#ffffff"
+
+#define a cor de fundo
+backgroundColor="#f6e8ff"
+
+#define a cor de fundo secundária
+secondaryBackgroundColor="#e4c8e8"
+
+#define a cor do texto
+textColor="#000000"
+
+#define a fonte do texto
+font="sans serif"
