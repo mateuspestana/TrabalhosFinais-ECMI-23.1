@@ -26,7 +26,7 @@ pip==23.1.2
 protobuf==6.33.5
 
 #biblioteca para processamento de dados em colunas
-pyarrow==11.0.0
+pyarrow==14.0.0
 
 #biblioteca para fazer requisição HTTP
 requests==2.30.0
@@ -35,7 +35,7 @@ requests==2.30.0
 stqdm==0.0.5
 
 #biblioteca para criação de sites interativos
-streamlit==1.22.0
+streamlit==1.40.0
 
 #biblioteca para exibição de barras de progresso em loops
 tqdm==4.65.0
